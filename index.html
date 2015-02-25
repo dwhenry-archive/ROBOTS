@@ -1,0 +1,38 @@
+<div id='fps' > </div>
+<img id='image' />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+<script>
+  $(function () {
+      var last = new Date();
+      // if user is running mozilla then use it's built-in WebSocket
+      window.WebSocket = window.WebSocket || window.MozWebSocket;
+
+      var connection = new WebSocket('ws://127.0.0.1:1337');
+
+      connection.onopen = function () {
+          // connection is opened and ready to use
+      };
+
+      connection.onerror = function (error) {
+          // an error occurred when sending/receiving data
+      };
+
+      connection.onmessage = function (message) {
+
+          // try to decode json (I assume that each message from server is json)
+          try {
+              var json = JSON.parse(message.data);
+              $('#image').attr({src: 'data:image/gif;base64,' + json.data })
+              var current = new Date();
+              // console.log(current - last)
+              $('#fps').html(parseInt(1000 / (current - last)) + ' FPS')
+              last = current
+          } catch (e) {
+              console.log('This doesn\'t look like a valid JSON: ', message.data);
+              return;
+          }
+          // handle incoming message
+      };
+  });
+</script>
